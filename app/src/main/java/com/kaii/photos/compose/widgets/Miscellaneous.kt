@@ -17,7 +17,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -221,32 +221,29 @@ fun ShowSelectedState(
         modifier = modifier
     ) {
         Box(
-    modifier = modifier
-        .padding(2.dp)
-) {
-    // 未选中状态的圆圈以前用 background 主题色描边，浅色主题+浅色照片时几乎看不见，
-    // 所以先垫一层半透明黑色底，不管照片本身深浅，圆圈都能看清楚。
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .align(Alignment.Center)
-            .clip(CircleShape)
-            .background(Color.Black.copy(alpha = 0.35f))
-    )
-
-    Icon(
-        painter = painterResource(id = if (isSelected()) R.drawable.file_is_selected_background else R.drawable.file_not_selected_background),
-        contentDescription = "file is selected indicator",
-        tint =
-            if (isSelected())
-                MaterialTheme.colorScheme.primary
-            else
-                Color.White,
-        modifier = Modifier
-            .size(24.dp)
-            .clip(CircleShape)
-            .align(Alignment.Center)
-    )
+            modifier = modifier
+                .padding(2.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = if (isSelected()) R.drawable.file_is_selected_background else R.drawable.file_not_selected_background),
+                contentDescription = "file is selected indicator",
+                tint =
+                    if (isSelected())
+                        MaterialTheme.colorScheme.primary
+                    else
+                        Color.White,
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.Center)
+                    .drawBehind {
+                        // 只有未选中状态才需要黑色垫底，选中时蓝色本身对比度就够，省一次绘制。
+                        // 用 drawBehind 而不是新开一个 Box，避免每个格子多一层布局节点，滑动更流畅。
+                        if (!isSelected()) {
+                            drawCircle(color = Color.Black.copy(alpha = 0.35f))
+                        }
+                    }
+                    .clip(CircleShape)
+            )
 
             AnimatedVisibility(
                 visible = isSelected(),
