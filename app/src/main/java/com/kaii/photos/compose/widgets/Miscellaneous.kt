@@ -221,23 +221,32 @@ fun ShowSelectedState(
         modifier = modifier
     ) {
         Box(
-            modifier = modifier
-                .padding(2.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = if (isSelected()) R.drawable.file_is_selected_background else R.drawable.file_not_selected_background),
-                contentDescription = "file is selected indicator",
-                tint =
-                    if (isSelected())
-                        MaterialTheme.colorScheme.primary
-                    else {
-                        if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background
-                    },
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.Center)
-            )
+    modifier = modifier
+        .padding(2.dp)
+) {
+    // 未选中状态的圆圈以前用 background 主题色描边，浅色主题+浅色照片时几乎看不见，
+    // 所以先垫一层半透明黑色底，不管照片本身深浅，圆圈都能看清楚。
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .align(Alignment.Center)
+            .clip(CircleShape)
+            .background(Color.Black.copy(alpha = 0.35f))
+    )
+
+    Icon(
+        painter = painterResource(id = if (isSelected()) R.drawable.file_is_selected_background else R.drawable.file_not_selected_background),
+        contentDescription = "file is selected indicator",
+        tint =
+            if (isSelected())
+                MaterialTheme.colorScheme.primary
+            else
+                Color.White,
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .align(Alignment.Center)
+    )
 
             AnimatedVisibility(
                 visible = isSelected(),
